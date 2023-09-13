@@ -32,14 +32,15 @@ public class PrivateEventController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EventFullDto create(@Validated(Create.class) @RequestBody NewEventDto newEventDto, @PathVariable Long userId) {
+    public EventFullDto create(@Validated(Create.class) @RequestBody NewEventDto newEventDto,
+            @PathVariable Long userId) {
         return eventService.create(newEventDto, userId);
     }
 
     @GetMapping
     public List<EventShortDto> getAllByInitiatorId(@PathVariable Long userId,
-                                                   @RequestParam(defaultValue = "0", required = false) @PositiveOrZero Integer from,
-                                                   @RequestParam(defaultValue = "10", required = false) @Positive Integer size) {
+            @RequestParam(defaultValue = "0", required = false) @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "10", required = false) @Positive Integer size) {
         return eventService.getAllByInitiatorId(userId, from, size);
     }
 
@@ -50,15 +51,16 @@ public class PrivateEventController {
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateByInitiator(@Validated(Update.class) @RequestBody UpdateEventDto updatedEvent,
-                                          @PathVariable Long eventId,
-                                          @PathVariable Long userId) {
+            @PathVariable Long eventId,
+            @PathVariable Long userId) {
         return eventService.updateByInitiator(updatedEvent, eventId, userId);
     }
 
     @PatchMapping("/{eventId}/requests")
-    public EventRequestStatusUpdateResultDto processRequestsByInitiator(@RequestBody @Valid EventRequestStatusUpdateRequestDto updateRequest,
-                                                                        @PathVariable Long userId,
-                                                                        @PathVariable Long eventId) {
+    public EventRequestStatusUpdateResultDto processRequestsByInitiator(
+            @RequestBody @Valid EventRequestStatusUpdateRequestDto updateRequest,
+            @PathVariable Long userId,
+            @PathVariable Long eventId) {
         return requestService.processRequestsByInitiator(updateRequest, userId, eventId);
     }
 

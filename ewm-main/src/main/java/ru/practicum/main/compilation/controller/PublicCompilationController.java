@@ -30,7 +30,8 @@ public class PublicCompilationController {
     public ResponseEntity<List<CompilationResponseDto>> getAll(@RequestParam(required = false) Boolean pinned,
             @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
-        log.info("Получен GET запрос по эндпоинту /compilations на получение списка Compilation с параметрами pinned = {}, from = {}, size = {}.",
+        log.info(
+                "Получен GET запрос по эндпоинту /compilations на получение списка Compilation с параметрами pinned = {}, from = {}, size = {}.",
                 pinned, from, size);
         return new ResponseEntity<>(compilationService.getAll(pinned, from, size), HttpStatus.OK);
     }

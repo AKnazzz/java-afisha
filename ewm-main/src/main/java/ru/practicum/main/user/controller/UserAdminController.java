@@ -40,7 +40,9 @@ public class UserAdminController {
     public ResponseEntity<List<UserDto>> getAllUsers(@RequestParam(required = false) List<Long> ids,
             @RequestParam(defaultValue = "0", required = false) @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10", required = false) @Positive Integer size) {
-        log.info("Получен GET запрос по эндпоинту /admin/users на получение списка UserDto с параметрами ids={}, from={}, size={}.", ids, from, size);
+        log.info(
+                "Получен GET запрос по эндпоинту /admin/users на получение списка UserDto с параметрами ids={}, from={}, size={}.",
+                ids, from, size);
         return new ResponseEntity<>(userService.getUsers(ids, from, size), HttpStatus.OK);
     }
 

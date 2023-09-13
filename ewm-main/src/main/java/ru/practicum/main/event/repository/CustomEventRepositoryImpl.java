@@ -21,7 +21,7 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
 
     @Override
     public List<Event> findEventsByAdmin(List<Long> users, List<EventState> states, List<Long> categories,
-                                         LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
+            LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = cb.createQuery(Event.class);
         Root<Event> root = query.from(Event.class);
@@ -49,7 +49,7 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
 
     @Override
     public List<Event> findEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                          LocalDateTime rangeEnd, Integer from, Integer size, EventSort sort) {
+            LocalDateTime rangeEnd, Integer from, Integer size, EventSort sort) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = cb.createQuery(Event.class);
         Root<Event> root = query.from(Event.class);

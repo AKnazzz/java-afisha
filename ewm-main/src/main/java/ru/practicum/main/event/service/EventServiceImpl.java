@@ -132,8 +132,9 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional(readOnly = true)
     public List<EventFullDto> getAllEventsByAdmin(List<Long> users, List<EventState> states, List<Long> categories,
-                                                  LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
-        log.info("Получен список events от admin с параметрами: users={}, states={}, categories={}, start={}, end={}, from={}, size={}",
+            LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
+        log.info(
+                "Получен список events от admin с параметрами: users={}, states={}, categories={}, start={}, end={}, from={}, size={}",
                 users, states, categories, rangeStart, rangeEnd, from, size);
         return mapToFullDtoWithViewsAndRequests(
                 eventRepository.findEventsByAdmin(users, states, categories, rangeStart, rangeEnd, from, size)
@@ -151,13 +152,15 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventShortDto> getAllEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                                    LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
-                                                    Integer size, String uri, String ip) {
+    public List<EventShortDto> getAllEventsByPublic(String text, List<Long> categories, Boolean paid,
+            LocalDateTime rangeStart,
+            LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
+            Integer size, String uri, String ip) {
 
         checkIfStartBeforeEnd(rangeStart, rangeEnd);
 
-        List<Event> events = eventRepository.findEventsByPublic(text, categories, paid, rangeStart, rangeEnd, from, size, sort);
+        List<Event> events = eventRepository.findEventsByPublic(text, categories, paid, rangeStart, rangeEnd, from,
+                size, sort);
 
         Map<Long, Integer> eventLimits = new HashMap<>();
         events.forEach(e -> eventLimits.put(e.getId(), e.getParticipantLimit()));
@@ -166,7 +169,8 @@ public class EventServiceImpl implements EventService {
 
         if (onlyAvailable) {
             eventsWithViewsAndRequests = eventsWithViewsAndRequests.stream()
-                    .filter(e -> eventLimits.get(e.getId()) == 0 || eventLimits.get(e.getId()) > e.getConfirmedRequests())
+                    .filter(e -> eventLimits.get(e.getId()) == 0
+                            || eventLimits.get(e.getId()) > e.getConfirmedRequests())
                     .collect(Collectors.toList());
         }
 
@@ -174,8 +178,11 @@ public class EventServiceImpl implements EventService {
             eventsWithViewsAndRequests.sort(Comparator.comparing(EventShortDto::getViews));
         }
 
-        log.info("Получен список events от user public с параметрами: text={}, categories={}, paid={}, start={}, end={}, onlyAvailable={}," +
-                "sort={}, from={}, size={}", text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        log.info(
+                "Получен список events от user public с параметрами: text={}, categories={}, paid={}, start={}, end={}, onlyAvailable={},"
+                        +
+                        "sort={}, from={}, size={}", text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort,
+                from, size);
 
         statService.hit(uri, ip);
 
@@ -267,7 +274,8 @@ public class EventServiceImpl implements EventService {
 
     private void checkIfStartBeforeEnd(LocalDateTime start, LocalDateTime end) {
         if (start != null && end != null && end.isBefore(start)) {
-            throw new IllegalStateException("Неправильный временной интервал. Начальный параметр должен быть раньше конечного параметра");
+            throw new IllegalStateException(
+                    "Неправильный временной интервал. Начальный параметр должен быть раньше конечного параметра");
         }
     }
 
@@ -284,7 +292,8 @@ public class EventServiceImpl implements EventService {
 
     private void checkIfAdminCanUpdate(Event event) {
         if (!event.getState().equals(EventState.PENDING)) {
-            throw new CantDoException("Не удается опубликовать событие, потому что оно находится в неправильном состоянии: PUBLISHED");
+            throw new CantDoException(
+                    "Не удается опубликовать событие, потому что оно находится в неправильном состоянии: PUBLISHED");
         }
     }
 

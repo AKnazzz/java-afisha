@@ -4,30 +4,46 @@ services:
 
   stats-server:
     build: ewm-stat/stat-server/
-    container_name: stat-server
+    container_name: stats-server
     ports:
       - "9090:9090"
     depends_on:
       - stats-db
     environment:
-      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_STAT}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-
 
   stats-db:
     image: postgres:14-alpine
-    container_name: stat-db
+    container_name: stats-db
     ports:
       - "6541:5432"
     environment:
-      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_DB=${POSTGRES_DB_STAT}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
-  # ewm-service:
-  #  ports:
-  #    - "8080:8080"
+  ewm-service:
+    build: ewm-main/
+    container_name: ewm-main
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ewm-db
+      - stats-server
+    environment:
+      - STATS_SERVER_DOCKER=${STATS_SERVER_DOCKER}
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL_MAIN}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 
-  # ewm-db:
-  #  image: postgres:14-alpine
+  ewm-db:
+    image: postgres:14-alpine
+    container_name: ewm-db
+    ports:
+      - "6542:5432"
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB_MAIN}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}

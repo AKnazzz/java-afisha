@@ -1,7 +1,6 @@
 package ru.practicum.main.event.model;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import ru.practicum.main.category.model.Category;

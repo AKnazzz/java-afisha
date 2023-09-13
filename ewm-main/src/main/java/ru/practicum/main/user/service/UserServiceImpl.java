@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
-        if (ids == null || ids.isEmpty()){
+        if (ids == null || ids.isEmpty()) {
             log.info("Получен список всех User с параметрами ids={}, from={}, size={}", ids, from, size);
             return userMapper.toUserDto(userRepository.findAll(PageRequest.of(from / size, size)));
         } else {

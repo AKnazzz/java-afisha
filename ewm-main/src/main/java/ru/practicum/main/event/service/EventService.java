@@ -22,14 +22,13 @@ public interface EventService {
 
     EventFullDto updateByAdmin(UpdateEventDto updatedEvent, Long eventId);
 
-    List<EventFullDto> getAllEventsByAdmin(List<Long> users, List<EventState> states, List<Long> categories,
-            LocalDateTime rangeStart,
-            LocalDateTime rangeEnd, Integer from, Integer size);
+    List<EventFullDto> getAllEventsByAdmin(List<Long> users, List<EventState> states, List<Long> categories, LocalDateTime rangeStart,
+                                           LocalDateTime rangeEnd, Integer from, Integer size);
 
     EventFullDto getEventByPublic(Long eventId, String uri, String ip);
 
     List<EventShortDto> getAllEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-            LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
-            Integer size, String uri, String ip);
+                                             LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
+                                             Integer size, String uri, String ip);
 
 }

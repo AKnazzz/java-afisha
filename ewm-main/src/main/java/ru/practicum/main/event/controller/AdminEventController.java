@@ -2,7 +2,10 @@ package ru.practicum.main.event.controller;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.main.event.dto.EventFullDto;
@@ -20,6 +23,7 @@ import static ru.practicum.main.util.Constants.DATE_PATTERN;
 
 @Validated
 @RestController
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/admin/events")
 public class AdminEventController {
@@ -27,20 +31,26 @@ public class AdminEventController {
     private final EventService eventService;
 
     @PatchMapping("/{eventId}")
-    public EventFullDto updateByAdmin(@RequestBody @Validated(UpdateAdm.class) UpdateEventDto updatedEvent,
+    public ResponseEntity<EventFullDto> updateByAdmin(
+            @RequestBody @Validated(UpdateAdm.class) UpdateEventDto updatedEvent,
             @PathVariable Long eventId) {
-        return eventService.updateByAdmin(updatedEvent, eventId);
+        log.info("Получен PATCH запрос по эндпоинту /admin/events на обновление Event с ID {} на параметры {}.",
+                eventId, updatedEvent);
+        return new ResponseEntity<>(eventService.updateByAdmin(updatedEvent, eventId), HttpStatus.OK);
     }
 
     @GetMapping
-    public List<EventFullDto> getAllEventsByAdmin(@RequestParam(required = false) List<Long> users,
+    public ResponseEntity<List<EventFullDto>> getAllEventsByAdmin(@RequestParam(required = false) List<Long> users,
             @RequestParam(required = false) List<EventState> states,
             @RequestParam(required = false) List<Long> categories,
             @RequestParam(required = false) @DateTimeFormat(pattern = DATE_PATTERN) LocalDateTime rangeStart,
             @RequestParam(required = false) @DateTimeFormat(pattern = DATE_PATTERN) LocalDateTime rangeEnd,
             @RequestParam(required = false, defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(required = false, defaultValue = "10") @Positive Integer size) {
-        return eventService.getAllEventsByAdmin(users, states, categories, rangeStart, rangeEnd, from, size);
+        log.info("Получен GET запрос по эндпоинту /admin/events на получение списка Event.");
+        return new ResponseEntity<>(
+                eventService.getAllEventsByAdmin(users, states, categories, rangeStart, rangeEnd, from, size),
+                HttpStatus.OK);
     }
 
 }

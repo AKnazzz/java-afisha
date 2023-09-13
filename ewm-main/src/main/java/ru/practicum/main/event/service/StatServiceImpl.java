@@ -30,7 +30,7 @@ public class StatServiceImpl implements StatService {
     @Override
     public void hit(String uri, String ip) {
         EndpointHitDto hit = buildHit(uri, ip);
-        log.info("Add hit --> {}", hit);
+        log.info("Добавлен Hit {}", hit);
         statClient.saveHit(hit);
     }
 

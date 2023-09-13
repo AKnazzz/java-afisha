@@ -2,7 +2,6 @@ package ru.practicum.main.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.main.event.validator.annotation.ValidEventDate;
 import ru.practicum.main.location.dto.LocationDto;
@@ -25,42 +24,41 @@ import static ru.practicum.main.util.Constants.DATE_PATTERN;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PROTECTED)
 public class NewEventDto {
 
-    @NotBlank(message = "Annotation cannot be blank", groups = Create.class)
-    @Size(min = 20, max = 2000, message = "The event annotation must be from 20 to 2000 characters",
+    @NotBlank(message = "Аннотация не может быть пустой", groups = Create.class)
+    @Size(min = 20, max = 2000, message = "Аннотация к событию должна содержать от 20 до 2000 символов",
             groups = {Create.class, Update.class, UpdateAdm.class})
-    String annotation;
+    protected String annotation;
 
-    @NotNull(message = "Category cannot be null", groups = Create.class)
-    Long category;
+    @NotNull(message = "Категория не может быть нулевой", groups = Create.class)
+    protected Long category;
 
-    @NotBlank(message = "Description cannot be blank", groups = Create.class)
-    @Size(min = 20, max = 7000, message = "The event description must be from 20 to 7000 characters",
+    @NotBlank(message = "Описание не может быть пустым", groups = Create.class)
+    @Size(min = 20, max = 7000, message = "Описание события должно содержать от 20 до 7000 символов",
             groups = {Create.class, Update.class, UpdateAdm.class})
-    String description;
+    protected String description;
 
-    @NotNull(message = "Event date cannot be null", groups = Create.class)
+    @NotNull(message = "Дата события не может быть нулевой", groups = Create.class)
     @JsonFormat(pattern = DATE_PATTERN)
     @ValidEventDate(isAdmin = false, groups = {Create.class, Update.class})
     @ValidEventDate(isAdmin = true, groups = {UpdateAdm.class})
-    LocalDateTime eventDate;
+    protected LocalDateTime eventDate;
 
     @Valid
-    LocationDto location;
+    protected LocationDto location;
 
-    Boolean paid;
+    protected Boolean paid;
 
-    @PositiveOrZero(message = "ParticipantLimit cannot be negative")
-    Integer participantLimit;
+    @PositiveOrZero(message = "Лимит участников не может быть отрицательным")
+    protected Integer participantLimit;
 
-    Boolean requestModeration;
+    protected Boolean requestModeration;
 
-    @NotBlank(message = "Title cannot be blank or null", groups = Create.class)
-    @Size(min = 3, max = 120, message = "The event title must be from 3 to 120 characters",
+    @NotBlank(message = "Заголовок не может быть пустым или null", groups = Create.class)
+    @Size(min = 3, max = 120, message = "Название мероприятия должно содержать от 3 до 120 символов",
             groups = {Create.class, Update.class, UpdateAdm.class})
-    String title;
+    protected String title;
 
 }
 

@@ -1,7 +1,6 @@
 package ru.practicum.main.event.dto;
 
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.main.event.model.EventStateAction;
 
@@ -11,9 +10,8 @@ import ru.practicum.main.event.model.EventStateAction;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class UpdateEventDto extends NewEventDto {
 
-    EventStateAction stateAction;
+    private EventStateAction stateAction;
 
 }

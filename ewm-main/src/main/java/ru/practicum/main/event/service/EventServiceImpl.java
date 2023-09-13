@@ -61,7 +61,7 @@ public class EventServiceImpl implements EventService {
         Location location = findLocation(locationMapper.toLocation(newEventDto.getLocation()));
 
         Event event = eventMapper.toEvent(newEventDto, initiator, category, location, EventState.PENDING);
-        log.info("Create new event --> id={}, ", event.getId());
+        log.info("Создан Event c id {}. ", event.getId());
 
         return mapToFullDtoWithViewsAndRequests(eventRepository.save(event));
     }
@@ -70,7 +70,7 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<EventShortDto> getAllByInitiatorId(Long userId, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from / size, size);
-        log.info("Get events from={} size={} added by user with id={}", from, size, userId);
+        log.info("Получен список Events from={} size={} от инициатора User с id {}", from, size, userId);
         return mapToShortDtoWithViewsAndRequests(eventRepository.findEventsByInitiatorId(userId, pageable));
     }
 
@@ -97,7 +97,7 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-        log.info("Update event with id={} by user id={}", eventId, userId);
+        log.info("Обновлен Event с id {} от User c id {}", eventId, userId);
         return mapToFullDtoWithViewsAndRequests(eventRepository.save(event));
     }
 
@@ -125,16 +125,15 @@ public class EventServiceImpl implements EventService {
             }
         }
 
-        log.info("Update event with id={} by admin", eventId);
+        log.info("Обновлен Event с id {} от admin", eventId);
         return mapToFullDtoWithViewsAndRequests(eventRepository.save(event));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<EventFullDto> getAllEventsByAdmin(List<Long> users, List<EventState> states, List<Long> categories,
-            LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
-        log.info(
-                "Get events by admin with params: users={}, states={}, categories={}, start={}, end={}, from={}, size={}",
+                                                  LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
+        log.info("Получен список events от admin с параметрами: users={}, states={}, categories={}, start={}, end={}, from={}, size={}",
                 users, states, categories, rangeStart, rangeEnd, from, size);
         return mapToFullDtoWithViewsAndRequests(
                 eventRepository.findEventsByAdmin(users, states, categories, rangeStart, rangeEnd, from, size)
@@ -145,22 +144,20 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public EventFullDto getEventByPublic(Long eventId, String uri, String ip) {
         Event event = checkIfPublishedEventExistsAndGet(eventId);
-        log.info("Get event with id={} by public", eventId);
+        log.info("Получен event с id {} от User public", eventId);
         statService.hit(uri, ip);
         return mapToFullDtoWithViewsAndRequests(event);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventShortDto> getAllEventsByPublic(String text, List<Long> categories, Boolean paid,
-            LocalDateTime rangeStart,
-            LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
-            Integer size, String uri, String ip) {
+    public List<EventShortDto> getAllEventsByPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
+                                                    LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, Integer from,
+                                                    Integer size, String uri, String ip) {
 
         checkIfStartBeforeEnd(rangeStart, rangeEnd);
 
-        List<Event> events = eventRepository.findEventsByPublic(text, categories, paid, rangeStart, rangeEnd, from,
-                size, sort);
+        List<Event> events = eventRepository.findEventsByPublic(text, categories, paid, rangeStart, rangeEnd, from, size, sort);
 
         Map<Long, Integer> eventLimits = new HashMap<>();
         events.forEach(e -> eventLimits.put(e.getId(), e.getParticipantLimit()));
@@ -169,8 +166,7 @@ public class EventServiceImpl implements EventService {
 
         if (onlyAvailable) {
             eventsWithViewsAndRequests = eventsWithViewsAndRequests.stream()
-                    .filter(e -> eventLimits.get(e.getId()) == 0
-                            || eventLimits.get(e.getId()) > e.getConfirmedRequests())
+                    .filter(e -> eventLimits.get(e.getId()) == 0 || eventLimits.get(e.getId()) > e.getConfirmedRequests())
                     .collect(Collectors.toList());
         }
 
@@ -178,11 +174,8 @@ public class EventServiceImpl implements EventService {
             eventsWithViewsAndRequests.sort(Comparator.comparing(EventShortDto::getViews));
         }
 
-        log.info(
-                "Get events by public with params: text={}, categories={}, paid={}, start={}, end={}, onlyAvailable={},"
-                        +
-                        "sort={}, from={}, size={}", text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort,
-                from, size);
+        log.info("Получен список events от user public с параметрами: text={}, categories={}, paid={}, start={}, end={}, onlyAvailable={}," +
+                "sort={}, from={}, size={}", text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
 
         statService.hit(uri, ip);
 
@@ -253,7 +246,7 @@ public class EventServiceImpl implements EventService {
 
     private void checkNewLimit(Integer newLimit, Long confirmedReq) {
         if (newLimit != 0 && newLimit < confirmedReq) {
-            throw new CantDoException("New limit cannot be less than the number of confirmed requests");
+            throw new CantDoException("Новый лимит не может быть меньше количества подтвержденных запросов");
         }
     }
 
@@ -274,8 +267,7 @@ public class EventServiceImpl implements EventService {
 
     private void checkIfStartBeforeEnd(LocalDateTime start, LocalDateTime end) {
         if (start != null && end != null && end.isBefore(start)) {
-            throw new IllegalStateException(
-                    "Incorrect time interval. The start param should be earlier than the end param");
+            throw new IllegalStateException("Неправильный временной интервал. Начальный параметр должен быть раньше конечного параметра");
         }
     }
 
@@ -286,13 +278,13 @@ public class EventServiceImpl implements EventService {
 
     private void checkIfUserCanUpdate(Event event) {
         if (event.getState().equals(EventState.PUBLISHED)) {
-            throw new CantDoException("Only pending or canceled events can be changed");
+            throw new CantDoException("Можно изменить только отложенные или отмененные события");
         }
     }
 
     private void checkIfAdminCanUpdate(Event event) {
         if (!event.getState().equals(EventState.PENDING)) {
-            throw new CantDoException("Cannot publish the event because it's not in the right state: PUBLISHED");
+            throw new CantDoException("Не удается опубликовать событие, потому что оно находится в неправильном состоянии: PUBLISHED");
         }
     }
 

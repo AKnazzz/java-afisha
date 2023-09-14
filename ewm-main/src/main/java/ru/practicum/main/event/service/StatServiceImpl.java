@@ -48,7 +48,7 @@ public class StatServiceImpl implements StatService {
         List<Event> publishedEvents = new ArrayList<>();
 
         for (Event event : events) {
-            if(event.getPublishedOn() != null){
+            if (event.getPublishedOn() != null) {
                 publishedEvents.add(event);
             }
         }
@@ -80,7 +80,7 @@ public class StatServiceImpl implements StatService {
         List<Long> publishedIds = new ArrayList<>();
 
         for (Event event : events) {
-            if(event.getPublishedOn() != null){
+            if (event.getPublishedOn() != null) {
                 publishedIds.add(event.getId());
             }
         }

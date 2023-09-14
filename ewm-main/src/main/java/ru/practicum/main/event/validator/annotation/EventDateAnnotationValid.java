@@ -8,9 +8,9 @@ import java.lang.annotation.*;
 
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(ValidEventDates.class)
+@Repeatable(EventDatesAnnotationValid.class)
 @Constraint(validatedBy = EventDateValidator.class)
-public @interface ValidEventDate {
+public @interface EventDateAnnotationValid {
     String message() default "EventDate must be at least 2 hours later than the current time and cannot be null";
 
     Class<?>[] groups() default {};

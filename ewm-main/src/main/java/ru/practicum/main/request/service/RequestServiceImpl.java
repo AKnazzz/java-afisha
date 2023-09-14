@@ -39,27 +39,26 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto create(Long userId, Long eventId) {
         User user = userExistsAndUserGet(userId);
         Event event = eventExistsAndGet(eventId);
-
         requestRepeatExist(userId, eventId);
         requestOwnerEventExist(userId, event);
         requestPublishedExist(event);
         participantLimitCheck(1, event);
 
-        Request request = Request.builder()
+        Request element = Request.builder()
                 .created(LocalDateTime.now())
-                .requester(user)
-                .event(event)
                 .status(RequestState.PENDING)
+                .event(event)
+                .requester(user)
                 .build();
 
         if (!event.getRequestModeration() || event.getParticipantLimit() == 0) {
-            request.setStatus(RequestState.CONFIRMED);
+            element.setStatus(RequestState.CONFIRMED);
         }
 
         ParticipationRequestDto participationRequestDto = requestMapper
-                .toParticipationRequestDto(requestRepository.save(request));
+                .toParticipationRequestDto(requestRepository.save(element));
 
-        log.info("Создан новый request с ID {}.", request.getId());
+        log.info("Создан новый request с ID {}.", element.getId());
         return participationRequestDto;
 
     }
@@ -68,8 +67,10 @@ public class RequestServiceImpl implements RequestService {
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequestsByUserId(Long userId) {
         userExist(userId);
-        log.info("ПОлучен requests для user с ID {}", userId);
-        return requestMapper.toParticipationRequestDto(requestRepository.findRequestsByRequesterId(userId));
+        List<ParticipationRequestDto> requests = requestMapper.toParticipationRequestDto(
+                requestRepository.findRequestsByRequesterId(userId));
+        log.info("Получен requests для user с ID {}", userId);
+        return requests;
     }
 
     @Override
@@ -78,30 +79,27 @@ public class RequestServiceImpl implements RequestService {
         userExist(userId);
         Request request = findRequestByUserIdAndRequestId(userId, requestId);
         request.setStatus(RequestState.CANCELED);
-        log.info("User с ID {} отменил request с ID {}.", userId, requestId);
-        return requestMapper.toParticipationRequestDto(requestRepository.save(request));
+        ParticipationRequestDto element = requestMapper.toParticipationRequestDto(requestRepository.save(request));
+        log.info("User с ID {} отменил свой request с ID {}.", userId, requestId);
+        return element;
     }
 
     @Override
     @Transactional
     public EventRequestStatusUpdateResultDto processRequestsByInitiator(
-            EventRequestStatusUpdateRequestDto updateRequest,
-            Long userId, Long eventId) {
-        log.info("Обновление request {} для user с ID {} для event с ID {}.", updateRequest, userId, eventId);
+            EventRequestStatusUpdateRequestDto updateRequest, Long userId, Long eventId) {
 
         userExist(userId);
         Event event = eventOwnerExistsAndGet(eventId, userId);
-        List<Long> ids = updateRequest.getRequestIds();
+        List<Long> requestIds = updateRequest.getRequestIds();
 
-        if (shouldSkipProcessing(ids, event)) {
-            return new EventRequestStatusUpdateResultDto(
-                    Collections.emptyList(),
-                    Collections.emptyList()
+        if (shouldSkipProcessing(requestIds, event)) {
+            return new EventRequestStatusUpdateResultDto(new ArrayList<>(), new ArrayList<>()
             );
         }
 
-        List<Request> requests = requestRepository.findRequestsByIdIn(ids);
-        if (ids.size() != requests.size()) {
+        List<Request> requests = requestRepository.findRequestsByIdIn(requestIds);
+        if (requests.size() != requestIds.size()) {
             throw new EntityNotExistException("Не все requests были найдены");
         }
 
@@ -116,29 +114,30 @@ public class RequestServiceImpl implements RequestService {
                 rejected = requestRepository.saveAll(requests);
                 break;
             case CONFIRMED:
-                participantLimitCheck(ids.size(), event);
+                participantLimitCheck(requestIds.size(), event);
                 requests.forEach(r -> r.setStatus(RequestState.CONFIRMED));
                 confirmed = requestRepository.saveAll(requests);
                 break;
         }
-
-        return new EventRequestStatusUpdateResultDto(
-                requestMapper.toParticipationRequestDto(confirmed),
-                requestMapper.toParticipationRequestDto(rejected)
-        );
+        log.info("Обновление request {} для user с ID {} для event с ID {}.", updateRequest, userId, eventId);
+        return new EventRequestStatusUpdateResultDto(requestMapper.toParticipationRequestDto(confirmed),
+                requestMapper.toParticipationRequestDto(rejected));
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequestsByInitiator(Long userId, Long eventId) {
-        log.info("Получен список requests для user с ID {} для event с ID {}.", userId, eventId);
-        return requestMapper.toParticipationRequestDto(
+        List<ParticipationRequestDto> elements = requestMapper.toParticipationRequestDto(
                 requestRepository.findRequestsByEventInitiatorIdAndEventId(userId, eventId));
+        log.info("Получен список requests для user с ID {} для event с ID {}.", userId, eventId);
+        return elements;
     }
 
     private Request findRequestByUserIdAndRequestId(Long userId, Long requestId) {
-        return requestRepository.findRequestsByRequesterIdAndId(userId, requestId)
+        Request request = requestRepository.findRequestsByRequesterIdAndId(userId, requestId)
                 .orElseThrow(() -> new EntityNotExistException(Request.class, requestId));
+        log.info("Получен request с ID {} для user с ID {}.", requestId, userId);
+        return request;
     }
 
     private void participantLimitCheck(Integer requestToAdd, Event event) {

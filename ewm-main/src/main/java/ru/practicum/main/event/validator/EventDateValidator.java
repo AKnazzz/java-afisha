@@ -1,17 +1,17 @@
 package ru.practicum.main.event.validator;
 
-import ru.practicum.main.event.validator.annotation.ValidEventDate;
+import ru.practicum.main.event.validator.annotation.EventDateAnnotationValid;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDateTime;
 
-public class EventDateValidator implements ConstraintValidator<ValidEventDate, LocalDateTime> {
+public class EventDateValidator implements ConstraintValidator<EventDateAnnotationValid, LocalDateTime> {
 
     private boolean isAdmin;
 
     @Override
-    public void initialize(ValidEventDate annotation) {
+    public void initialize(EventDateAnnotationValid annotation) {
         isAdmin = annotation.isAdmin();
     }
 

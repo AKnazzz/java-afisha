@@ -3,7 +3,7 @@ package ru.practicum.main.event.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import ru.practicum.main.event.validator.annotation.ValidEventDate;
+import ru.practicum.main.event.validator.annotation.EventDateAnnotationValid;
 import ru.practicum.main.location.dto.LocationDto;
 import ru.practicum.main.validation.group.Create;
 import ru.practicum.main.validation.group.Update;
@@ -41,8 +41,8 @@ public class NewEventDto {
 
     @NotNull(message = "Дата события не может быть нулевой", groups = Create.class)
     @JsonFormat(pattern = DATE_PATTERN)
-    @ValidEventDate(isAdmin = false, groups = {Create.class, Update.class})
-    @ValidEventDate(isAdmin = true, groups = {UpdateAdm.class})
+    @EventDateAnnotationValid(isAdmin = false, groups = {Create.class, Update.class})
+    @EventDateAnnotationValid(isAdmin = true, groups = {UpdateAdm.class})
     protected LocalDateTime eventDate;
 
     @Valid

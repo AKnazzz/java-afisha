@@ -294,7 +294,7 @@ public class EventServiceImpl implements EventService {
 
     private void updateLimitExist(Integer newLimit, Long confirmedReq) {
         if (newLimit != 0 && newLimit < confirmedReq) {
-            throw new CantDoException("Новый лимит не может быть меньше количества подтвержденных запросов");
+            throw new CantDoException("Новый лимит участников не может быть меньше количества подтвержденных запросов");
         }
     }
 

@@ -25,7 +25,7 @@ public class UserAdminController {
 
     @PostMapping
     public ResponseEntity<UserDto> create(@Valid @RequestBody UserDto userDto) {
-        log.info("Получен POST запрос по эндпоинту /admin/users на создание нового UserDto = {}.", userDto);
+        log.info("Получен POST запрос по эндпоинту /admin/users на создание нового UserDto {}.", userDto);
         return new ResponseEntity<>(userService.create(userDto), HttpStatus.CREATED);
     }
 
@@ -41,7 +41,7 @@ public class UserAdminController {
             @RequestParam(defaultValue = "0", required = false) @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10", required = false) @Positive Integer size) {
         log.info(
-                "Получен GET запрос по эндпоинту /admin/users на получение списка UserDto с параметрами ids={}, from={}, size={}.",
+                "Получен GET запрос по эндпоинту /admin/users на получение списка User с параметрами ids={}, from={}, size={}.",
                 ids, from, size);
         return new ResponseEntity<>(userService.getUsers(ids, from, size), HttpStatus.OK);
     }

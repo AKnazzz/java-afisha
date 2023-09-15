@@ -33,7 +33,7 @@ public class CategoryPublicController {
             @RequestParam(defaultValue = "0", required = false) @PositiveOrZero Integer from,
             @RequestParam(defaultValue = "10", required = false) @Positive Integer size) {
         log.info(
-                "Получен GET запрос по эндпоинту /categories на получение всех Categoryс параметрами from={}, size={}.",
+                "Получен GET запрос по эндпоинту /categories на получение всех Categories параметрами from={}, size={}.",
                 from, size);
         return new ResponseEntity<>(categoryService.getAll(from, size), HttpStatus.OK);
     }

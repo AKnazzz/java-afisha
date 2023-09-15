@@ -34,45 +34,56 @@ public class PrivateEventController {
     private final RequestService requestService;
 
     @PostMapping
-    public ResponseEntity<EventFullDto> create(@Validated(Create.class) @RequestBody NewEventDto newEventDto, @PathVariable Long userId) {
-        log.info("Получен POST запрос по эндпоинту /users/{}/events на создание Event от User с ID {}.", userId, userId);
+    public ResponseEntity<EventFullDto> create(@Validated(Create.class) @RequestBody NewEventDto newEventDto,
+            @PathVariable Long userId) {
+        log.info("Получен POST запрос по эндпоинту /users/{}/events на создание Event {}.", userId, newEventDto);
         return new ResponseEntity<>(eventService.create(newEventDto, userId), HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<List<EventShortDto>> getAllByInitiatorId(@PathVariable Long userId,
-                                                   @RequestParam(defaultValue = "0", required = false) @PositiveOrZero Integer from,
-                                                   @RequestParam(defaultValue = "10", required = false) @Positive Integer size) {
-        log.info("Получен GET запрос по эндпоинту /users/{}/events на получение списка Event от User с ID {}.", userId, userId);
+            @RequestParam(defaultValue = "0", required = false) @PositiveOrZero Integer from,
+            @RequestParam(defaultValue = "10", required = false) @Positive Integer size) {
+        log.info("Получен GET запрос по эндпоинту /users/{}/events на получение списка Events от Инициатора.", userId);
         return new ResponseEntity<>(eventService.getAllByInitiatorId(userId, from, size), HttpStatus.OK);
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<EventFullDto> getEventByIdAndInitiatorId(@PathVariable Long eventId, @PathVariable Long userId) {
-        log.info("Получен GET запрос по эндпоинту /users/{}/events/{} на получение Event от User (инициатор) с ID {}.", userId, eventId, eventId);
+    public ResponseEntity<EventFullDto> getEventByIdAndInitiatorId(@PathVariable Long eventId,
+            @PathVariable Long userId) {
+        log.info("Получен GET запрос по эндпоинту /users/{}/events/{} на получение Event с ID {}.", userId, eventId,
+                eventId);
         return new ResponseEntity<>(eventService.getEventByIdAndInitiatorId(eventId, userId), HttpStatus.OK);
     }
 
     @PatchMapping("/{eventId}")
-    public ResponseEntity<EventFullDto> updateByInitiator(@Validated(Update.class) @RequestBody UpdateEventDto updatedEvent,
-                                          @PathVariable Long eventId,
-                                          @PathVariable Long userId) {
-        log.info("Получен PATCH запрос по эндпоинту /users/{}/events/{} на обновление Event от User (инициатор) с ID {}.", userId, eventId, eventId);
+    public ResponseEntity<EventFullDto> updateByInitiator(
+            @Validated(Update.class) @RequestBody UpdateEventDto updatedEvent,
+            @PathVariable Long eventId,
+            @PathVariable Long userId) {
+        log.info("Получен PATCH запрос по эндпоинту /users/{}/events/{} на обновление Event на параметры {}.", userId,
+                eventId, updatedEvent);
         return new ResponseEntity<>(eventService.updateByInitiator(updatedEvent, eventId, userId), HttpStatus.OK);
     }
 
     @PatchMapping("/{eventId}/requests")
-    public ResponseEntity<EventRequestStatusUpdateResultDto> processRequestsByInitiator(@RequestBody @Valid EventRequestStatusUpdateRequestDto updateRequest,
-                                                                        @PathVariable Long userId,
-                                                                        @PathVariable Long eventId) {
-        log.info("Получен PATCH запрос по эндпоинту /users/{}/events/{}/requests на обновление Requests для Event от User (инициатор) с ID {}.", userId, eventId, eventId);
-        return new ResponseEntity<>(requestService.processRequestsByInitiator(updateRequest, userId, eventId), HttpStatus.OK);
+    public ResponseEntity<EventRequestStatusUpdateResultDto> processRequestsByInitiator(
+            @RequestBody @Valid EventRequestStatusUpdateRequestDto updateRequest,
+            @PathVariable Long userId,
+            @PathVariable Long eventId) {
+        log.info("Получен PATCH запрос по эндпоинту /users/{}/events/{}/requests на апдейт Request {}.", userId,
+                eventId, updateRequest);
+        return new ResponseEntity<>(requestService.processRequestsByInitiator(updateRequest, userId, eventId),
+                HttpStatus.OK);
     }
 
     @GetMapping("/{eventId}/requests")
-    public ResponseEntity<List<ParticipationRequestDto>> getRequestsByInitiator(@PathVariable Long userId, @PathVariable Long eventId) {
-        log.info("Получен GET запрос по эндпоинту /users/{}/events/{}/requests на получение списка Requests для Event от User (инициатор) с ID {}.", userId, eventId, eventId);
-        return new ResponseEntity<>(requestService.getRequestsByInitiator(userId, eventId),HttpStatus.OK);
+    public ResponseEntity<List<ParticipationRequestDto>> getRequestsByInitiator(@PathVariable Long userId,
+            @PathVariable Long eventId) {
+        log.info(
+                "Получен GET запрос по эндпоинту /users/{}/events/{}/requests на получение списка запросов на участие ParticipationRequestDto.",
+                userId, eventId);
+        return new ResponseEntity<>(requestService.getRequestsByInitiator(userId, eventId), HttpStatus.OK);
     }
 
 }

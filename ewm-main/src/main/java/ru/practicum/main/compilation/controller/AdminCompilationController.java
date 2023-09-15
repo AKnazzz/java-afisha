@@ -24,7 +24,7 @@ public class AdminCompilationController {
     @PostMapping
     public ResponseEntity<CompilationResponseDto> create(
             @RequestBody @Validated(Create.class) CompilationRequestDto compilationRequestDto) {
-        log.info("Получен POST запрос по эндпоинту /admin/compilations на создание новой Compilation = {}.",
+        log.info("Получен POST запрос по эндпоинту /admin/compilations на создание новой Compilation {}.",
                 compilationRequestDto);
         return new ResponseEntity<>(compilationService.create(compilationRequestDto), HttpStatus.CREATED);
     }
@@ -33,15 +33,15 @@ public class AdminCompilationController {
     public ResponseEntity<CompilationResponseDto> update(
             @RequestBody @Validated(Update.class) CompilationRequestDto compilationRequestDto,
             @PathVariable Long compId) {
-        log.info("Получен PATCH запрос по эндпоинту /admin/compilations/{} на обновление Compilation с ID {}.", compId,
-                compId);
+        log.info("Получен PATCH запрос по эндпоинту /admin/compilations/{} на обновление Compilation на параметры {}.",
+                compId, compilationRequestDto);
         return new ResponseEntity<>(compilationService.update(compilationRequestDto, compId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{compId}")
     public ResponseEntity<?> delete(@PathVariable Long compId) {
         compilationService.delete(compId);
-        log.info("Получен DELETE запрос по эндпоинту /admin/compilations/{} на обновление Compilation с ID {}.", compId,
+        log.info("Получен DELETE запрос по эндпоинту /admin/compilations/{} на удаление Compilation с ID {}.", compId,
                 compId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

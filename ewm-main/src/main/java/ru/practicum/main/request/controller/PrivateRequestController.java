@@ -27,7 +27,7 @@ public class PrivateRequestController {
 
     @GetMapping
     public ResponseEntity<List<ParticipationRequestDto>> getRequestsByUserId(@PathVariable Long userId) {
-        log.info("Получен GET запрос по эндпоинту /users/{}/requests на получение списка Request у User c ID {}.",
+        log.info("Получен GET запрос по эндпоинту /users/{}/requests на получение списка Request от User c ID {}.",
                 userId, userId);
         return new ResponseEntity<>(requestService.getRequestsByUserId(userId), HttpStatus.OK);
     }
@@ -35,7 +35,7 @@ public class PrivateRequestController {
     @PatchMapping("/{requestId}/cancel")
     public ResponseEntity<ParticipationRequestDto> cancel(@PathVariable Long userId, @PathVariable Long requestId) {
         log.info(
-                "Получен PATCH запрос по эндпоинту /users/{}/requests на отмену Request у User c ID {} на Event c ID {}.",
+                "Получен PATCH запрос по эндпоинту /users/{}/requests на отмену Request от User c ID {} на Event c ID {}.",
                 userId, userId, requestId);
         return new ResponseEntity<>(requestService.cancel(userId, requestId), HttpStatus.OK);
     }

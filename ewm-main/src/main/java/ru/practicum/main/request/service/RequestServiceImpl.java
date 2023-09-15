@@ -68,7 +68,7 @@ public class RequestServiceImpl implements RequestService {
         userExist(userId);
         List<ParticipationRequestDto> requests = requestMapper.toParticipationRequestDto(
                 requestRepository.findRequestsByRequesterId(userId));
-        log.info("Получен requests для user с ID {}", userId);
+        log.info("Получен список Requests созданных User с ID {}", userId);
         return requests;
     }
 
@@ -79,7 +79,7 @@ public class RequestServiceImpl implements RequestService {
         Request request = findRequestByUserIdAndRequestId(userId, requestId);
         request.setStatus(RequestState.CANCELED);
         ParticipationRequestDto element = requestMapper.toParticipationRequestDto(requestRepository.save(request));
-        log.info("User с ID {} отменил свой request с ID {}.", userId, requestId);
+        log.info("User с ID {} отменил свой Request с ID {}.", userId, requestId);
         return element;
     }
 
@@ -99,7 +99,7 @@ public class RequestServiceImpl implements RequestService {
 
         List<Request> requests = requestRepository.findRequestsByIdIn(requestIds);
         if (requests.size() != requestIds.size()) {
-            throw new EntityNotExistException("Не все requests были найдены");
+            throw new EntityNotExistException("Не все Requests были найдены");
         }
 
         pendingCheck(requests);
@@ -118,7 +118,7 @@ public class RequestServiceImpl implements RequestService {
                 confirmed = requestRepository.saveAll(requests);
                 break;
         }
-        log.info("Обновление request {} для user с ID {} для event с ID {}.", updateRequest, userId, eventId);
+        log.info("Обновление Request {} для User с ID {} для Event с ID {}.", updateRequest, userId, eventId);
         return new EventRequestStatusUpdateResultDto(requestMapper.toParticipationRequestDto(confirmed),
                 requestMapper.toParticipationRequestDto(rejected));
     }
@@ -128,14 +128,14 @@ public class RequestServiceImpl implements RequestService {
     public List<ParticipationRequestDto> getRequestsByInitiator(Long userId, Long eventId) {
         List<ParticipationRequestDto> elements = requestMapper.toParticipationRequestDto(
                 requestRepository.findRequestsByEventInitiatorIdAndEventId(userId, eventId));
-        log.info("Получен список requests для user с ID {} для event с ID {}.", userId, eventId);
+        log.info("Получен список Requests для User (Инициатор) с ID {} для Event с ID {}.", userId, eventId);
         return elements;
     }
 
     private Request findRequestByUserIdAndRequestId(Long userId, Long requestId) {
         Request request = requestRepository.findRequestsByRequesterIdAndId(userId, requestId)
                 .orElseThrow(() -> new EntityNotExistException(Request.class, requestId));
-        log.info("Получен request с ID {} для user с ID {}.", requestId, userId);
+        log.info("Получен Request с ID {} для User с ID {}.", requestId, userId);
         return request;
     }
 

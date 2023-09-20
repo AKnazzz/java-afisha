@@ -85,6 +85,14 @@
 - COMPILATION_ID - идентификатор подборки событий;
 - EVENT_ID - идентификатор события (соответствует ID в таблице EVENTS);
 
+**COMMENTS**
+- ID - идентификатор комментария на событие (первичный ключ);
+- MESSAGE - сообщение, содержание комментария;
+- CREATED - дата и время создания комментария;
+- AUTHOR_ID - идентификатор пользователя (соответствует ID в таблице USERS);
+- EVENT_ID - идентификатор события (соответствует ID в таблице EVENTS);
+
+
 
 ## _Сервис статистики, выделенный порт: 9090_
 Хранит количество просмотров и позволяющий делать различные выборки для анализа работы приложения.
@@ -110,7 +118,27 @@
 
 
 ## _Фича "Комментарии пользователей"_
-...COMING SOON...
+
+**Функционал в зависимости от категории пользователя:**
+
+**АДМИНИСТРАТИВНЫЙ:**
+- `[GET] /admin/comments?from={from}&size={size}` – получить список всех комментариев с пагинацией
+- `[DELETE] /admin/comments/{commentId}` – удалить комментарий с ID `commentId`
+
+**АВТОРИЗОВАННЫЙ ПОЛЬЗОВАТЕЛЬ:**
+- `[POST] /users/{userId}/comments?eventId={eventId}` – создать новый комментарий к событию c ID `eventId`
+  пользователем c ID `userId`
+- `[PATCH] /users/{userId}/comments/{commentId}` – обновить свой комментарий c ID `commentId` пользователем c ID `userId`
+- `[DELETE] /users/{userId}/comments/{commentId}` - удалить свой комментарий c ID `commentId` пользователем c ID `userId`
+- `[GET] /users/{userId}/comments?eventId={eventId}&from={from}&size={size}` - получить список всех комментариев
+  пользователя c ID `userId` к событию c ID `eventId` с пагинацией
+- `[GET] /users/{userId}/comments?from={from}&size={size}` - получить список всех комментариев пользователя c ID `userId`
+  с пагинацией
+
+**НЕАВТОРИЗОВАННЫЙ ПОЛЬЗОВАТЕЛЬ:**
+- `[GET] /comments?eventId={eventId}&from={from}&size={size}` – получить список всех комментариев к событию c ID `eventId`
+  с пагинацией
+- `[GET] /comments/{commentId}` – получить комментарий c ID `commentId`
 
 
 ### _Спецификация REST API swagger_
@@ -122,7 +150,7 @@
 
 - [Основной сервис](https://github.com/yandex-praktikum/java-explore-with-me/blob/main_svc/postman/ewm-main-service.json)
 - [Сервис статистики](https://github.com/yandex-praktikum/java-explore-with-me/blob/stat_svc/postman/ewm-stat-service.json)
-- [Тест для фичи комментаии]()
+- [Тест для фичи комментаии](https://github.com/AKnazzz/java-explore-with-me/tree/main/postman/feature.json)
 ---
 ### Жизненный цикл событие модели данных:
 1. Создание события.

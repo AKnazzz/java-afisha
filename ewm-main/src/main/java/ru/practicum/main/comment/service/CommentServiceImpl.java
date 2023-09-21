@@ -9,8 +9,8 @@ import ru.practicum.main.comment.dto.ResponseCommentDto;
 import ru.practicum.main.comment.mapper.CommentMapper;
 import ru.practicum.main.comment.model.Comment;
 import ru.practicum.main.comment.repository.CommentRepository;
-import ru.practicum.main.error.exception.EntityNotExistException;
-import ru.practicum.main.error.exception.CantDoException;
+import ru.practicum.main.error.exception.EntityNotFoundException;
+import ru.practicum.main.error.exception.OperationNotAllowedException;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.EventState;
 import ru.practicum.main.event.repository.EventRepository;
@@ -33,9 +33,9 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public ResponseCommentDto create(RequestCommentDto newComment, Long userId, Long eventId) {
-        Event event = checkerEventExistsById(eventId);
-        User user = checkerUserExistsById(userId);
-        checkerPublishedExist(event);
+        Event event = ensureEventIsExistsAndGetById(eventId);
+        User user = ensureUserIsExistsAndGetById(userId);
+        ensureEventIsPublished(event);
         Comment comment = commentRepository.save(commentMapper.commentDtotoComment(newComment, user, event));
         ResponseCommentDto responseCommentDto = commentMapper.toResponseCommentDto(comment);
         log.info("Создан новый Comment {} от User c ID {} на Event c ID {}.", newComment, userId, eventId);
@@ -45,8 +45,8 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public ResponseCommentDto update(RequestCommentDto newComment, Long userId, Long commentId) {
-        checkerUserExistById(userId);
-        Comment comment = checkerOwnCommentExistsAndGetById(userId, commentId);
+        ensureUserIsExistById(userId);
+        Comment comment = ensureCommentOwnedByUserAndGet(userId, commentId);
         comment.setMessage(newComment.getMessage());
         ResponseCommentDto responseCommentDto = commentMapper.toResponseCommentDto(commentRepository.save(comment));
         log.info("Обновлён Comment c ID {} от User c ID {} на параметры {}.", commentId, userId, newComment);
@@ -56,7 +56,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public void deleteByIdByAdmin(Long commentId) {
-        checkerCommentExistsById(commentId);
+        ensureCommentIsExistsById(commentId);
         commentRepository.deleteById(commentId);
         log.info("Удалён Comment c ID {} администратором (User).", commentId);
     }
@@ -64,7 +64,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public void deleteByIdByUser(Long userId, Long commentId) {
-        checkerOwnCommentExistsAndGetById(userId, commentId);
+        ensureCommentOwnedByUserAndGet(userId, commentId);
         commentRepository.deleteById(commentId);
         log.info("Удалён Comment c ID {} от User c ID {}.", commentId, userId);
     }
@@ -72,7 +72,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public ResponseCommentDto getByIdByUser(Long userId, Long commentId) {
         ResponseCommentDto responseCommentDto = commentMapper.toResponseCommentDto(
-                checkerOwnCommentExistsAndGetById(userId, commentId));
+                ensureCommentOwnedByUserAndGet(userId, commentId));
         log.info("Получен Comment c ID {} созданный User c ID {}.", commentId, userId);
         return responseCommentDto;
     }
@@ -97,50 +97,50 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public ResponseCommentDto getByIdByAdmin(Long commentId) {
         ResponseCommentDto responseCommentDto = commentMapper.toResponseCommentDto(
-                checkCommentExistsAndGetById(commentId));
+                ensureCommentExistsAndGetById(commentId));
         log.info("Получен Comment c ID {} администратором (User).", commentId);
         return responseCommentDto;
     }
 
-    private Comment checkCommentExistsAndGetById(Long commentId) {
+    private Comment ensureCommentExistsAndGetById(Long commentId) {
         return commentRepository.findById(commentId)
-                .orElseThrow(() -> new EntityNotExistException(Comment.class, commentId));
+                .orElseThrow(() -> new EntityNotFoundException(Comment.class, commentId));
     }
 
-    private void checkerCommentExistsById(Long commentId) {
+    private void ensureCommentIsExistsById(Long commentId) {
         if (!commentRepository.existsById(commentId)) {
-            throw new EntityNotExistException(Comment.class, commentId);
+            throw new EntityNotFoundException(Comment.class, commentId);
         }
     }
 
-    private void checkerPublishedExist(Event event) {
+    private void ensureEventIsPublished(Event event) {
         if (!event.getState().equals(EventState.PUBLISHED)) {
-            throw new CantDoException("Не удается создать Comment к неопубликованному Event.");
+            throw new OperationNotAllowedException("Не удается создать Comment к неопубликованному Event.");
         }
     }
 
-    private Comment checkerOwnCommentExistsAndGetById(Long userId, Long commentId) {
-        Comment comment = checkCommentExistsAndGetById(commentId);
+    private Comment ensureCommentOwnedByUserAndGet(Long userId, Long commentId) {
+        Comment comment = ensureCommentExistsAndGetById(commentId);
         if (!comment.getAuthor().getId().equals(userId)) {
-            throw new CantDoException("Не удается работать с чужим Comment.");
+            throw new OperationNotAllowedException("Не удается работать с чужим Comment.");
         }
         return comment;
     }
 
-    private Event checkerEventExistsById(Long eventId) {
+    private Event ensureEventIsExistsAndGetById(Long eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotExistException(Event.class, eventId));
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 
-    private void checkerUserExistById(Long userId) {
+    private void ensureUserIsExistById(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new EntityNotExistException(User.class, userId);
+            throw new EntityNotFoundException(User.class, userId);
         }
     }
 
-    private User checkerUserExistsById(Long userId) {
+    private User ensureUserIsExistsAndGetById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotExistException(User.class, userId));
+                .orElseThrow(() -> new EntityNotFoundException(User.class, userId));
     }
 
 }

@@ -9,8 +9,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.main.error.exception.CantDoException;
-import ru.practicum.main.error.exception.EntityNotExistException;
+import ru.practicum.main.error.exception.OperationNotAllowedException;
+import ru.practicum.main.error.exception.EntityNotFoundException;
 
 import javax.validation.ConstraintViolationException;
 
@@ -36,7 +36,7 @@ public class KingHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorEntity> notFoundHandle(final EntityNotExistException e) {
+    public ResponseEntity<ErrorEntity> notFoundHandle(final EntityNotFoundException e) {
         String message = "Требуемый объект не был найден";
         log.warn("{}. {}", message, e.getMessage());
         return new ResponseEntity<>(new ErrorEntity(HttpStatus.NOT_FOUND.getReasonPhrase(), message),
@@ -52,7 +52,7 @@ public class KingHandler {
     }
 
     @ExceptionHandler
-    public ResponseEntity<ErrorEntity> forbiddenHandle(final CantDoException e) {
+    public ResponseEntity<ErrorEntity> forbiddenHandle(final OperationNotAllowedException e) {
         String message = "Для запрошенной операции условия не выполнены";
         log.warn("{}. {}", message, e.getMessage());
         return new ResponseEntity<>(new ErrorEntity(HttpStatus.FORBIDDEN.getReasonPhrase(), message),

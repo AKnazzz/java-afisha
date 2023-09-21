@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.category.repository.CategoryRepository;
-import ru.practicum.main.error.exception.CantDoException;
-import ru.practicum.main.error.exception.EntityNotExistException;
+import ru.practicum.main.error.exception.OperationNotAllowedException;
+import ru.practicum.main.error.exception.EntityNotFoundException;
 import ru.practicum.main.event.dto.EventFullDto;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.dto.NewEventDto;
@@ -73,7 +73,7 @@ public class EventServiceImpl implements EventService {
 
     private User userExistsAndGet(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotExistException(User.class, userId));
+                .orElseThrow(() -> new EntityNotFoundException(User.class, userId));
     }
 
     private Location checkFindLocation(Location location) {
@@ -83,7 +83,7 @@ public class EventServiceImpl implements EventService {
 
     private Category categoryCheckAndGet(Long catId) {
         return categoryRepository.findById(catId)
-                .orElseThrow(() -> new EntityNotExistException(Category.class, catId));
+                .orElseThrow(() -> new EntityNotFoundException(Category.class, catId));
     }
 
     @Override
@@ -123,12 +123,12 @@ public class EventServiceImpl implements EventService {
 
     private Event checkIfOwnEventExistsAndGet(Long eventId, Long userId) {
         return eventRepository.findEventByIdAndInitiatorId(eventId, userId)
-                .orElseThrow(() -> new EntityNotExistException(Event.class, eventId));
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 
     private void userCanUpdateChecker(Event event) {
         if (event.getState().equals(EventState.PUBLISHED)) {
-            throw new CantDoException("Можно изменить только отложенные или отмененные события");
+            throw new OperationNotAllowedException("Можно изменить только отложенные или отмененные события");
         }
     }
 
@@ -161,12 +161,12 @@ public class EventServiceImpl implements EventService {
 
     private Event eventCheckAndGet(Long eventId) {
         return eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotExistException(Event.class, eventId));
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 
     private void adminCanUpdateChecker(Event event) {
         if (!event.getState().equals(EventState.PENDING)) {
-            throw new CantDoException(
+            throw new OperationNotAllowedException(
                     "Не удается опубликовать событие, потому что оно находится в неправильном состоянии: PUBLISHED");
         }
     }
@@ -294,7 +294,7 @@ public class EventServiceImpl implements EventService {
 
     private void updateLimitExist(Integer newLimit, Long confirmedReq) {
         if (newLimit != 0 && newLimit < confirmedReq) {
-            throw new CantDoException("Новый лимит участников не может быть меньше количества подтвержденных запросов");
+            throw new OperationNotAllowedException("Новый лимит участников не может быть меньше количества подтвержденных запросов");
         }
     }
 
@@ -304,13 +304,13 @@ public class EventServiceImpl implements EventService {
 
     private void userExists(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new EntityNotExistException(User.class, userId);
+            throw new EntityNotFoundException(User.class, userId);
         }
     }
 
     private Event publishedEventCheckAndGet(Long eventId) {
         return eventRepository.getEventIfPublished(eventId)
-                .orElseThrow(() -> new EntityNotExistException(Event.class, eventId));
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 
 }

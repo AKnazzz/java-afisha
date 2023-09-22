@@ -10,8 +10,8 @@ import ru.practicum.main.category.dto.NewCategoryDto;
 import ru.practicum.main.category.mapper.CategoryMapper;
 import ru.practicum.main.category.model.Category;
 import ru.practicum.main.category.repository.CategoryRepository;
-import ru.practicum.main.error.exception.CantDoException;
-import ru.practicum.main.error.exception.EntityNotExistException;
+import ru.practicum.main.error.exception.OperationNotAllowedException;
+import ru.practicum.main.error.exception.EntityNotFoundException;
 import ru.practicum.main.event.repository.EventRepository;
 
 import java.util.List;
@@ -69,7 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     private void checkIfEmpty(Long catId) {
         if (!eventRepository.findEventsByCategoryId(catId).isEmpty()) {
-            throw new CantDoException("Категория не пустая");
+            throw new OperationNotAllowedException("Категория не пустая");
         }
     }
 
@@ -78,13 +78,13 @@ public class CategoryServiceImpl implements CategoryService {
         if (category.isPresent()) {
             return category.get();
         } else {
-            throw new EntityNotExistException(Category.class, catId);
+            throw new EntityNotFoundException(Category.class, catId);
         }
     }
 
     private void checkIfCategoryExists(Long catId) {
         if (!categoryRepository.existsById(catId)) {
-            throw new EntityNotExistException(Category.class, catId);
+            throw new EntityNotFoundException(Category.class, catId);
         }
     }
 

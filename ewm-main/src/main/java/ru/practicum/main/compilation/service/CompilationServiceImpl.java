@@ -10,7 +10,7 @@ import ru.practicum.main.compilation.dto.CompilationResponseDto;
 import ru.practicum.main.compilation.mapper.CompilationMapper;
 import ru.practicum.main.compilation.model.Compilation;
 import ru.practicum.main.compilation.repository.CompilationRepository;
-import ru.practicum.main.error.exception.EntityNotExistException;
+import ru.practicum.main.error.exception.EntityNotFoundException;
 import ru.practicum.main.event.dto.EventShortDto;
 import ru.practicum.main.event.mapper.EventMapper;
 import ru.practicum.main.event.model.Event;
@@ -123,19 +123,19 @@ public class CompilationServiceImpl implements CompilationService {
 
     private void compExists(Long compId) {
         if (!compilationRepository.existsById(compId)) {
-            throw new EntityNotExistException(Compilation.class, compId);
+            throw new EntityNotFoundException(Compilation.class, compId);
         }
     }
 
     private void allEventsExist(Integer found, Integer provided) {
         if (!found.equals(provided)) {
-            throw new EntityNotExistException("Найдены не все compilations.");
+            throw new EntityNotFoundException("Найдены не все compilations.");
         }
     }
 
     private Compilation compExistsAndGet(Long compId) {
         return compilationRepository.findById(compId)
-                .orElseThrow(() -> new EntityNotExistException(Compilation.class, compId));
+                .orElseThrow(() -> new EntityNotFoundException(Compilation.class, compId));
     }
 
 }

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.main.error.exception.EntityNotExistException;
+import ru.practicum.main.error.exception.EntityNotFoundException;
 import ru.practicum.main.user.dto.UserDto;
 import ru.practicum.main.user.mapper.UserMapper;
 import ru.practicum.main.user.model.User;
@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
 
     private void userExists(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new EntityNotExistException(User.class, userId);
+            throw new EntityNotFoundException(User.class, userId);
         }
     }
 

@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.main.error.exception.CantDoException;
-import ru.practicum.main.error.exception.EntityNotExistException;
+import ru.practicum.main.error.exception.OperationNotAllowedException;
+import ru.practicum.main.error.exception.EntityNotFoundException;
 import ru.practicum.main.event.model.Event;
 import ru.practicum.main.event.model.EventState;
 import ru.practicum.main.event.repository.EventRepository;
@@ -99,7 +99,7 @@ public class RequestServiceImpl implements RequestService {
 
         List<Request> requests = requestRepository.findRequestsByIdIn(requestIds);
         if (requests.size() != requestIds.size()) {
-            throw new EntityNotExistException("Не все Requests были найдены");
+            throw new EntityNotFoundException("Не все Requests были найдены");
         }
 
         pendingCheck(requests);
@@ -134,7 +134,7 @@ public class RequestServiceImpl implements RequestService {
 
     private Request findRequestByUserIdAndRequestId(Long userId, Long requestId) {
         Request request = requestRepository.findRequestsByRequesterIdAndId(userId, requestId)
-                .orElseThrow(() -> new EntityNotExistException(Request.class, requestId));
+                .orElseThrow(() -> new EntityNotFoundException(Request.class, requestId));
         log.info("Получен Request с ID {} для User с ID {}.", requestId, userId);
         return request;
     }
@@ -142,7 +142,7 @@ public class RequestServiceImpl implements RequestService {
     private void participantLimitCheck(Integer requestToAdd, Event event) {
         if (requestRepository.getConfirmedRequests(event.getId()) + requestToAdd > event.getParticipantLimit()
                 && event.getParticipantLimit() != 0) {
-            throw new CantDoException("Превышение лимита участников.");
+            throw new OperationNotAllowedException("Превышение лимита участников.");
         }
     }
 
@@ -150,7 +150,7 @@ public class RequestServiceImpl implements RequestService {
         if (!requests.stream()
                 .map(Request::getStatus)
                 .allMatch(s -> s.equals(RequestState.PENDING))) {
-            throw new CantDoException("Подтвержденные или отмененные requests не могут быть изменены.");
+            throw new OperationNotAllowedException("Подтвержденные или отмененные requests не могут быть изменены.");
         }
     }
 
@@ -160,40 +160,40 @@ public class RequestServiceImpl implements RequestService {
 
     private Event eventOwnerExistsAndGet(Long eventId, Long userId) {
         return eventRepository.findByIdAndInitiatorIdAndLock(eventId, userId)
-                .orElseThrow(() -> new EntityNotExistException(Event.class, eventId));
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 
     private Event eventExistsAndGet(Long eventId) {
         return eventRepository.findByIdAndLock(eventId)
-                .orElseThrow(() -> new EntityNotExistException(Event.class, eventId));
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, eventId));
     }
 
     private void requestOwnerEventExist(Long userId, Event event) {
         if (userId.equals(event.getInitiator().getId())) {
-            throw new CantDoException("Не удается создать request на ваше собственное мероприятие.");
+            throw new OperationNotAllowedException("Не удается создать request на ваше собственное мероприятие.");
         }
     }
 
     private void requestPublishedExist(Event event) {
         if (!event.getState().equals(EventState.PUBLISHED)) {
-            throw new CantDoException("Не удается создать request на неопубликованное событие.");
+            throw new OperationNotAllowedException("Не удается создать request на неопубликованное событие.");
         }
     }
 
     private void requestRepeatExist(Long userId, Long eventId) {
         if (requestRepository.findRequestByRequesterIdAndEventId(userId, eventId).isPresent()) {
-            throw new CantDoException("Невозможно дважды создавать одни и те же запросы на участие.");
+            throw new OperationNotAllowedException("Невозможно дважды создавать одни и те же запросы на участие.");
         }
     }
 
     private User userExistsAndUserGet(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotExistException(User.class, userId));
+                .orElseThrow(() -> new EntityNotFoundException(User.class, userId));
     }
 
     private void userExist(Long userId) {
         if (!userRepository.existsById(userId)) {
-            throw new EntityNotExistException(User.class, userId);
+            throw new EntityNotFoundException(User.class, userId);
         }
     }
 

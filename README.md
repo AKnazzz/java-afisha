@@ -1,7 +1,3 @@
-### ссылка на ПР:
-### https://github.com/AKnazzz/java-explore-with-me/pull/8
-
-
 # Explore with Me
 
 ## Важная информация:
